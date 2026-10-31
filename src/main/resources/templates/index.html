@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Backup Auto</title>
+    <style>
+        body {
+            margin: 0;
+            background: #f3e8c9;
+            color: #111111;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+        .btn {
+            background: #111111;
+            color: #f5f0e8;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 26px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+        }
+        th, td {
+            border: 1px solid #000000;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #efe1b9;
+        }
+        .status-success {
+            color: #0d6f2d;
+            font-weight: 700;
+        }
+        .status-failure {
+            color: #8a1f1f;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Backup Auto</h1>
+
+    <div class="toolbar">
+        <form th:action="@{/backup/run}" method="post">
+            <button class="btn" type="submit">Lancer le backup manuellement</button>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Statut</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>Durée</th>
+            <th>Taille</th>
+            <th>Type</th>
+            <th>Raison d'échec</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(executions)}">
+            <td colspan="7">Aucun backup enregistré pour le moment.</td>
+        </tr>
+        <tr th:each="execution : ${executions}">
+            <td th:classappend="${execution.status.name() == 'SUCCESS'} ? 'status-success' : 'status-failure'"
+                th:text="${execution.status}">SUCCESS</td>
+            <td th:text="${#temporals.format(execution.startedAt, 'dd/MM/yyyy HH:mm:ss')}">-</td>
+            <td th:text="${execution.finishedAt != null ? #temporals.format(execution.finishedAt, 'dd/MM/yyyy HH:mm:ss') : '-'}">-</td>
+            <td th:text="${execution.durationMs != null ? execution.durationMs + ' ms' : '-'}">-</td>
+            <td th:text="${execution.fileSizeBytes != null ? execution.fileSizeBytes + ' B' : '-'}">-</td>
+            <td th:text="${execution.launchedManually ? 'Manuel' : 'Automatique'}">-</td>
+            <td th:text="${execution.failureReason != null ? execution.failureReason : '-'}">-</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
